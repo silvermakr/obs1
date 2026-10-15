@@ -1,0 +1,3 @@
+.env
+server-debug.log
+server-debug-error.log
