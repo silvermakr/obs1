@@ -1,9 +1,26 @@
 const http = require("node:http");
+const fs = require("node:fs");
+const path = require("node:path");
+
+loadEnvFile();
 
 const port = Number(process.env.PORT || 3000);
-const botToken = process.env.8871347403:AAGPDRyu43NiF-5xDbTfr2cKaOdt6VOkOPc;
-const chatId = process.env.8871347403;
+const botToken = process.env.TELEGRAM_BOT_TOKEN;
+const chatId = process.env.TELEGRAM_CHAT_ID;
 const maxBodyBytes = 16 * 1024;
+
+function loadEnvFile() {
+  try {
+    const envFile = fs.readFileSync(path.join(__dirname, ".env"), "utf8");
+    for (const line of envFile.split(/\r?\n/)) {
+      const match = line.match(/^\s*([A-Z_][A-Z0-9_]*)\s*=\s*(.*?)\s*$/);
+      if (!match || Object.hasOwn(process.env, match[1])) continue;
+      process.env[match[1]] = match[2].replace(/^(["'])(.*)\1$/, "$2");
+    }
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+  }
+}
 
 const server = http.createServer(async (request, response) => {
   if (request.method === "GET" && request.url === "/api/health") {
@@ -57,13 +74,19 @@ const server = http.createServer(async (request, response) => {
       signal: AbortSignal.timeout(10000),
     });
     const telegramResult = await telegramResponse.json();
-    if (!telegramResponse.ok || !telegramResult.ok) throw new Error("Telegram delivery failed");
+    if (!telegramResponse.ok || !telegramResult.ok) {
+      console.error("Telegram API rejected the message:", telegramResult.description || telegramResponse.status);
+      response.writeHead(502, { "Content-Type": "application/json" });
+      response.end(JSON.stringify({ error: "Telegram could not deliver the message. Check the server configuration and chat ID." }));
+      return;
+    }
 
     response.writeHead(200, { "Content-Type": "application/json" });
     response.end(JSON.stringify({ sent: true }));
-  } catch {
+  } catch (error) {
+    console.error("Unable to process Telegram inquiry:", error.message);
     response.writeHead(500, { "Content-Type": "application/json" });
-    response.end(JSON.stringify({ error: "Unable to deliver the request" }));
+    response.end(JSON.stringify({ error: "Unable to deliver the request. Check that the server is running and Telegram is configured." }));
   }
 });
 

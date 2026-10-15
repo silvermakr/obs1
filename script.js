@@ -19,10 +19,14 @@ form?.addEventListener("submit", async (event) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(Object.fromEntries(new FormData(form))),
     });
-    if (!response.ok) throw new Error("Request failed");
+    if (!response.ok) {
+      const result = await response.json().catch(() => ({}));
+      throw new Error(result.error || "Request failed");
+    }
     form.reset();
     success.hidden = false;
-  } catch {
+  } catch (cause) {
+    error.textContent = cause.message || "We couldn’t send your request. Check your connection and try again.";
     error.hidden = false;
   } finally {
     button.disabled = false;
