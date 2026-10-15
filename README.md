@@ -1,21 +1,21 @@
-# AI Практикум
+# Claude AI
 
-Статичний лендинг і невеликий Node.js сервер для отримання заявок у Telegram.
+A landing page and a small Node.js server that delivers course inquiries to Telegram.
 
-## Налаштування Telegram-бота
+## Set up the Telegram bot
 
-1. У Telegram відкрийте `@BotFather`, виконайте `/newbot` і збережіть виданий токен.
-2. Напишіть новому боту `/start` зі свого Telegram-акаунта.
-3. Щоб дізнатися chat ID, відкрийте `https://api.telegram.org/bot<TOKEN>/getUpdates` після надсилання `/start` і знайдіть `message.chat.id` у відповіді. Не публікуйте URL або токен.
-4. Запустіть сервер із серверними змінними середовища:
+1. Open `@BotFather` in Telegram, run `/newbot`, and save the token it gives you.
+2. Send `/start` to your new bot from your Telegram account.
+3. To find your chat ID, open `https://api.telegram.org/bot<TOKEN>/getUpdates` after sending `/start`, then find `message.chat.id` in the response. Keep the URL and token private.
+4. Start the server with these environment variables:
 
 ```powershell
-$env:TELEGRAM_BOT_TOKEN = "токен-від-BotFather"
-$env:TELEGRAM_CHAT_ID = "ваш-chat-id"
+$env:TELEGRAM_BOT_TOKEN = "your-BotFather-token"
+$env:TELEGRAM_CHAT_ID = "your-chat-id"
 $env:PORT = "3000"
 node server.js
 ```
 
-Відкрийте `http://localhost:3000`. Сервер обслуговує саму сторінку та приймає заявки на `/api/lead`, пересилаючи їх у зазначений Telegram-чат. Токен бота передається лише серверу й не потрапляє в браузер. Для публічного розгортання розмістіть Node-сервер на хостингу з підтримкою Node.js і задайте там ті самі змінні середовища.
+Open `http://localhost:3000`. The server hosts the page and forwards `/api/lead` requests to the configured Telegram chat. The bot token stays on the server and is never sent to the browser. For a public deployment, host the Node.js server on a Node.js-compatible platform and set the same environment variables there.
 
-Бота створює власник акаунта через BotFather; автоматично створити бота або отримати його токен без доступу до цього Telegram-акаунта неможливо.
+Create the bot through BotFather from your own Telegram account. Creating a bot or retrieving its token requires access to that account.

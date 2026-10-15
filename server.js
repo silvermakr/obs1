@@ -1,8 +1,8 @@
 const http = require("node:http");
 
 const port = Number(process.env.PORT || 3000);
-const botToken = process.env.TELEGRAM_BOT_TOKEN;
-const chatId = process.env.TELEGRAM_CHAT_ID;
+const botToken = process.env.8871347403:AAGPDRyu43NiF-5xDbTfr2cKaOdt6VOkOPc;
+const chatId = process.env.8871347403;
 const maxBodyBytes = 16 * 1024;
 
 const server = http.createServer(async (request, response) => {
@@ -44,10 +44,10 @@ const server = http.createServer(async (request, response) => {
     }
 
     const message = [
-      "Нова заявка на курс AI Практикум",
-      `Ім’я: ${name}`,
+      "New Claude AI course inquiry",
+      `Name: ${name}`,
       `Telegram: ${contact}`,
-      `Мета: ${goal || "Не вказано"}`,
+      `Learning goal: ${goal || "Not provided"}`,
     ].join("\n");
 
     const telegramResponse = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {

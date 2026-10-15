@@ -11,7 +11,7 @@ form?.addEventListener("submit", async (event) => {
   success.hidden = true;
   error.hidden = true;
   button.disabled = true;
-  button.textContent = "Надсилаємо…";
+  button.textContent = "Sending…";
 
   try {
     const response = await fetch("/api/lead", {
