@@ -29,7 +29,7 @@ function loadEnvFile() {
 }
 
 const server = http.createServer(async (request, response) => {
-  const requestPath = new URL(request.url, "http://localhost").pathname;
+  const requestPath = new URL(request.url, "http://localhost").pathname.replace(/\/+$/, "") || "/";
 
   if (request.method === "GET" && publicFiles.has(requestPath)) {
     const [fileName, contentType] = publicFiles.get(requestPath);
@@ -38,14 +38,15 @@ const server = http.createServer(async (request, response) => {
     return;
   }
 
-  if (request.method === "GET" && request.url === "/api/health") {
+  if (request.method === "GET" && requestPath === "/api/health") {
     response.writeHead(200, { "Content-Type": "application/json" });
     response.end(JSON.stringify({ ready: Boolean(botToken && chatId) }));
     return;
   }
 
-  if (request.method !== "POST" || request.url !== "/api/lead") {
-    response.writeHead(404).end();
+  if (request.method !== "POST" || requestPath !== "/api/lead") {
+    response.writeHead(404, { "Content-Type": "application/json" });
+    response.end(JSON.stringify({ error: `Route not found: ${request.method} ${requestPath}` }));
     return;
   }
 
