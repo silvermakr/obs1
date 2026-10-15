@@ -56,19 +56,20 @@
         <ul class="who"><li>Professionals who want to get more done at work</li><li>Business owners and teams adopting AI</li><li>Writers, marketers, and researchers</li><li>Beginners who want hands-on experience with Claude</li></ul>
       </section>
 
-      <section id="enroll" class="enroll"><div class="enroll__copy"><p class="kicker">Enroll</p><h2>Tell us what you want to do with AI.</h2><p>Share your Telegram contact and what you’d like to learn. We’ll prepare a message in Telegram for you to review and send.</p></div>
-        <form class="form" id="grant-form">
+      <section id="enroll" class="enroll"><div class="enroll__copy"><p class="kicker">Enroll</p><h2>Tell us what you want to do with AI.</h2><p>Share your Telegram contact and what you’d like to learn. Your request will be sent to our Telegram bot, and we’ll reply there.</p></div>
+        <form class="form" id="grant-form" method="post" action="/api/lead" target="lead-response">
           <label>Your name<input type="text" name="name" autocomplete="name" required maxlength="100" placeholder="Your name" /></label>
           <label>Telegram contact<input type="text" name="contact" required maxlength="100" placeholder="@username" /></label>
           <label>What would you like to learn?<textarea name="goal" rows="3" maxlength="1000" placeholder="For example: using Claude to analyze documents"></textarea></label>
-          <button class="btn btn--full" type="submit">Continue to Telegram</button>
-          <p class="form__note">Telegram will open with your message ready. Choose our bot and tap Send to submit your request.</p>
-          <p class="form__ok" role="status" aria-live="polite" hidden>Telegram opened with your message. Choose our bot and tap Send to submit your request.</p>
-          <p class="form__error" role="alert" hidden>Please enter your name and Telegram contact.</p>
+          <button class="btn btn--full" type="submit">Send request via Telegram</button>
+          <p class="form__note">Your details are sent to our Telegram bot so we can reply to your request.</p>
+          <p class="form__ok" role="status" aria-live="polite" hidden>Thanks! Your request was sent. We’ll reply to you on Telegram.</p>
+          <p class="form__error" role="alert" hidden>We couldn’t send your request. Check your connection and try again.</p>
         </form>
+        <iframe class="form__response-frame" id="lead-response" name="lead-response" title="Form response" aria-hidden="true" tabindex="-1"></iframe>
       </section>
     </main>
     <footer class="footer"><p>Claude AI · Practical AI courses</p><p>Questions and enrollment via Telegram only.</p></footer>
-    <script src="script.js?v=6"></script>
+    <script src="script.js?v=7"></script>
   </body>
 </html>
