@@ -8,6 +8,12 @@ const port = Number(process.env.PORT || 3000);
 const botToken = process.env.TELEGRAM_BOT_TOKEN;
 const chatId = process.env.TELEGRAM_CHAT_ID;
 const maxBodyBytes = 16 * 1024;
+const publicFiles = new Map([
+  ["/", ["index.html", "text/html; charset=utf-8"]],
+  ["/index.html", ["index.html", "text/html; charset=utf-8"]],
+  ["/styles.css", ["styles.css", "text/css; charset=utf-8"]],
+  ["/script.js", ["script.js", "text/javascript; charset=utf-8"]],
+]);
 
 function loadEnvFile() {
   try {
@@ -23,6 +29,13 @@ function loadEnvFile() {
 }
 
 const server = http.createServer(async (request, response) => {
+  if (request.method === "GET" && publicFiles.has(request.url)) {
+    const [fileName, contentType] = publicFiles.get(request.url);
+    response.writeHead(200, { "Content-Type": contentType, "Cache-Control": "no-cache" });
+    response.end(fs.readFileSync(path.join(__dirname, fileName)));
+    return;
+  }
+
   if (request.method === "GET" && request.url === "/api/health") {
     response.writeHead(200, { "Content-Type": "application/json" });
     response.end(JSON.stringify({ ready: Boolean(botToken && chatId) }));
