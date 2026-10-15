@@ -89,8 +89,12 @@ const server = http.createServer(async (request, response) => {
     const name = cleanField(lead.name, 100);
     const contact = cleanField(lead.contact, 100);
     const goal = cleanField(lead.goal, 1000);
-    if (!name || !contact) {
-      respondToForm(request, response, 400, "Check the form", "Name and Telegram contact are required.");
+    if (!isValidName(name)) {
+      respondToForm(request, response, 400, "Check your name", "Enter a valid name using letters, spaces, apostrophes, or hyphens. Numbers are not allowed.");
+      return;
+    }
+    if (!isValidTelegramUsername(contact)) {
+      respondToForm(request, response, 400, "Check your Telegram username", "Enter a username in the format @username (5–32 letters, numbers, or underscores).");
       return;
     }
 
@@ -124,6 +128,14 @@ const server = http.createServer(async (request, response) => {
 
 function cleanField(value, maxLength) {
   return typeof value === "string" ? value.replace(/[<>]/g, "").trim().slice(0, maxLength) : "";
+}
+
+function isValidName(value) {
+  return /^(?=.{2,100}$)[\p{L}]+(?:[ '\u2019-][\p{L}]+)*$/u.test(value);
+}
+
+function isValidTelegramUsername(value) {
+  return /^@[A-Za-z][A-Za-z0-9_]{4,31}$/.test(value);
 }
 
 server.listen(port, () => {

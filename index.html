@@ -58,8 +58,8 @@
 
       <section id="enroll" class="enroll"><div class="enroll__copy"><p class="kicker">Enroll</p><h2>Tell us what you want to do with AI.</h2><p>Share your Telegram contact and what you’d like to learn. Your request will be sent to our Telegram bot, and we’ll reply there.</p></div>
         <form class="form" id="grant-form" method="post" action="/api/lead" target="lead-response">
-          <label>Your name<input type="text" name="name" autocomplete="name" required maxlength="100" placeholder="Your name" /></label>
-          <label>Telegram contact<input type="text" name="contact" required maxlength="100" placeholder="@username" /></label>
+          <label>Your name<input type="text" name="name" autocomplete="name" required minlength="2" maxlength="100" pattern="[A-Za-zÀ-ÖØ-öø-ÿĀ-žА-Яа-яЁёІіЇїЄєҐґ]+(?:[ '\u2019-][A-Za-zÀ-ÖØ-öø-ÿĀ-žА-Яа-яЁёІіЇїЄєҐґ]+)*" title="Enter a real name using letters, spaces, apostrophes, or hyphens." placeholder="Your name" /></label>
+          <label>Telegram username<input type="text" name="contact" required minlength="6" maxlength="32" pattern="@[A-Za-z][A-Za-z0-9_]{4,31}" title="Enter a Telegram username starting with @ (5–32 letters, numbers, or underscores)." placeholder="@username" /></label>
           <label>What would you like to learn?<textarea name="goal" rows="3" maxlength="1000" placeholder="For example: using Claude to analyze documents"></textarea></label>
           <button class="btn btn--full" type="submit">Send request via Telegram</button>
           <p class="form__note">Your details are sent to our Telegram bot so we can reply to your request.</p>
