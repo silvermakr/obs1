@@ -57,7 +57,7 @@
       </section>
 
       <section id="enroll" class="enroll"><div class="enroll__copy"><p class="kicker">Enroll</p><h2>Tell us what you want to do with AI.</h2><p>Share your Telegram contact and what you’d like to learn. Your request will be sent to our Telegram bot, and we’ll reply there.</p></div>
-        <form class="form" id="grant-form" method="post" action="http://localhost:3000/api/lead" target="lead-response">
+        <form class="form" id="grant-form" method="post" action="/api/lead" target="lead-response">
           <label>Your name<input type="text" name="name" autocomplete="name" required maxlength="100" placeholder="Your name" /></label>
           <label>Telegram contact<input type="text" name="contact" required maxlength="100" placeholder="@username" /></label>
           <label>What would you like to learn?<textarea name="goal" rows="3" maxlength="1000" placeholder="For example: using Claude to analyze documents"></textarea></label>
@@ -70,6 +70,6 @@
       </section>
     </main>
     <footer class="footer"><p>Claude AI · Practical AI courses</p><p>Questions and enrollment via Telegram only.</p></footer>
-    <script src="script.js?v=4"></script>
+    <script src="script.js?v=5"></script>
   </body>
 </html>

@@ -21,6 +21,10 @@ PORT=3000
 node server.js
 ```
 
-Open `http://localhost:3000`. The server hosts the page and forwards `/api/lead` requests to the configured Telegram chat. The bot token stays on the server and is never sent to the browser. For a public deployment, host the Node.js server on a Node.js-compatible platform and set the same environment variables there.
+Open `http://localhost:3000`. The local Node.js server hosts the page and forwards `/api/lead` requests to the configured Telegram chat.
+
+## Deploy to Vercel
+
+The `api/lead.js` function handles form submissions on the same Vercel domain, so visitors' browsers do not need access to `localhost` or the visitor's device. In Vercel, open the project settings and add `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` as environment variables, then redeploy. Keep the bot token out of the client-side files.
 
 Create the bot through BotFather from your own Telegram account. Creating a bot or retrieving its token requires access to that account. Never share your `.env` file or commit it; it is excluded by `.gitignore`.

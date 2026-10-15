@@ -16,7 +16,7 @@ form?.addEventListener("submit", () => {
   requestTimeout = setTimeout(() => {
     if (!requestPending) return;
     requestPending = false;
-    showResult(false, "Could not reach the course server. Open the site at http://localhost:3000 and make sure the server is running.");
+    showResult(false, "Could not reach the course server. Please refresh the page and try again.");
   }, 15000);
 });
 
