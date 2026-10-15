@@ -1,43 +1,31 @@
 const form = document.getElementById("grant-form");
-const responseFrame = document.getElementById("lead-response");
 const submitButton = form?.querySelector('button[type="submit"]');
 const success = form?.querySelector(".form__ok");
 const error = form?.querySelector(".form__error");
-let requestPending = false;
-let requestTimeout;
 
-form?.addEventListener("submit", () => {
+form?.addEventListener("submit", (event) => {
+  event.preventDefault();
   success.hidden = true;
   error.hidden = true;
-  submitButton.disabled = true;
-  submitButton.textContent = "Sending…";
-  requestPending = true;
-  clearTimeout(requestTimeout);
-  requestTimeout = setTimeout(() => {
-    if (!requestPending) return;
-    requestPending = false;
-    showResult(false, "Could not reach the course server. Please refresh the page and try again.");
-  }, 15000);
-});
 
-window.addEventListener("message", (event) => {
-  if (!requestPending || event.source !== responseFrame.contentWindow || event.data?.type !== "lead-form-result") return;
+  if (!form.reportValidity()) return;
 
-  requestPending = false;
-  clearTimeout(requestTimeout);
-  showResult(event.data.success, event.data.message);
-});
+  const values = new FormData(form);
+  const message = [
+    "Claude AI course inquiry",
+    `Name: ${values.get("name")}`,
+    `Telegram: ${values.get("contact")}`,
+    `Learning goal: ${values.get("goal") || "Not provided"}`,
+  ].join("\n");
+  const telegramUrl = `https://t.me/share/url?text=${encodeURIComponent(message)}`;
+  const telegramWindow = window.open(telegramUrl, "_blank");
 
-function showResult(sent, message) {
-  submitButton.disabled = false;
-  submitButton.textContent = "Send request via Telegram";
-  if (sent) {
-    form.reset();
-    success.textContent = message || "Thanks! Your request was sent. We’ll reply to you on Telegram.";
-    success.hidden = false;
+  if (!telegramWindow) {
+    window.location.assign(telegramUrl);
     return;
   }
+  telegramWindow.opener = null;
 
-  error.textContent = message || "We couldn’t send your request. Please try again.";
-  error.hidden = false;
-}
+  submitButton.textContent = "Continue to Telegram";
+  success.hidden = false;
+});
