@@ -21,12 +21,14 @@ form?.addEventListener("submit", async (event) => {
     });
     if (!response.ok) {
       const result = await response.json().catch(() => ({}));
-      throw new Error(result.error || "Request failed");
+      throw new Error(result.error || `Request failed (HTTP ${response.status})`);
     }
     form.reset();
     success.hidden = false;
   } catch (cause) {
-    error.textContent = cause.message || "We couldn’t send your request. Check your connection and try again.";
+    error.textContent = cause.message === "Failed to fetch"
+      ? "Could not reach the course server. Make sure it is running, then refresh this page."
+      : cause.message || "We couldn’t send your request. Check your connection and try again.";
     error.hidden = false;
   } finally {
     button.disabled = false;

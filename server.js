@@ -29,9 +29,11 @@ function loadEnvFile() {
 }
 
 const server = http.createServer(async (request, response) => {
-  if (request.method === "GET" && publicFiles.has(request.url)) {
-    const [fileName, contentType] = publicFiles.get(request.url);
-    response.writeHead(200, { "Content-Type": contentType, "Cache-Control": "no-cache" });
+  const requestPath = new URL(request.url, "http://localhost").pathname;
+
+  if (request.method === "GET" && publicFiles.has(requestPath)) {
+    const [fileName, contentType] = publicFiles.get(requestPath);
+    response.writeHead(200, { "Content-Type": contentType, "Cache-Control": "no-store, max-age=0" });
     response.end(fs.readFileSync(path.join(__dirname, fileName)));
     return;
   }
