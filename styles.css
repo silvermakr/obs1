@@ -461,6 +461,14 @@ h2 {
   color: var(--cyan);
 }
 
+.form__response-frame {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  border: 0;
+  clip-path: inset(50%);
+}
+
 .footer {
   border-top: 1px solid var(--line);
   padding-top: 2rem;

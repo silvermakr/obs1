@@ -28,6 +28,24 @@ function loadEnvFile() {
   }
 }
 
+function respondToForm(request, response, status, title, message) {
+  if (!request.headers.accept?.includes("text/html")) {
+    response.writeHead(status, { "Content-Type": "application/json" });
+    response.end(JSON.stringify(status >= 400 ? { error: message } : { sent: true }));
+    return;
+  }
+
+  const safeTitle = escapeHtml(title);
+  const safeMessage = escapeHtml(message);
+  const resultMessage = JSON.stringify({ type: "lead-form-result", success: status < 400, message }).replace(/</g, "\\u003c");
+  response.writeHead(status, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" });
+  response.end(`<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${safeTitle} — Claude AI</title><main data-form-result="${status < 400 ? "success" : "error"}"><h1>${safeTitle}</h1><p>${safeMessage}</p></main><script>window.parent.postMessage(${resultMessage},"*")<\/script></html>`);
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
+}
+
 const server = http.createServer(async (request, response) => {
   const requestPath = new URL(request.url, "http://localhost").pathname.replace(/\/+$/, "") || "/";
 
@@ -45,14 +63,12 @@ const server = http.createServer(async (request, response) => {
   }
 
   if (request.method !== "POST" || requestPath !== "/api/lead") {
-    response.writeHead(404, { "Content-Type": "application/json" });
-    response.end(JSON.stringify({ error: `Route not found: ${request.method} ${requestPath}` }));
+    respondToForm(request, response, 404, "Page not found", `Route not found: ${request.method} ${requestPath}`);
     return;
   }
 
   if (!botToken || !chatId) {
-    response.writeHead(503, { "Content-Type": "application/json" });
-    response.end(JSON.stringify({ error: "Telegram is not configured" }));
+    respondToForm(request, response, 503, "Setup needed", "Telegram is not configured on the server.");
     return;
   }
 
@@ -66,13 +82,15 @@ const server = http.createServer(async (request, response) => {
       }
     }
 
-    const lead = JSON.parse(rawBody);
+    const contentType = request.headers["content-type"] || "";
+    const lead = contentType.includes("application/json")
+      ? JSON.parse(rawBody)
+      : Object.fromEntries(new URLSearchParams(rawBody));
     const name = cleanField(lead.name, 100);
     const contact = cleanField(lead.contact, 100);
     const goal = cleanField(lead.goal, 1000);
     if (!name || !contact) {
-      response.writeHead(400, { "Content-Type": "application/json" });
-      response.end(JSON.stringify({ error: "Name and Telegram contact are required" }));
+      respondToForm(request, response, 400, "Check the form", "Name and Telegram contact are required.");
       return;
     }
 
@@ -93,17 +111,14 @@ const server = http.createServer(async (request, response) => {
     if (!telegramResponse.ok || !telegramResult.ok) {
       const telegramError = telegramResult.description || `Telegram HTTP ${telegramResponse.status}`;
       console.error("Telegram API rejected the message:", telegramError);
-      response.writeHead(502, { "Content-Type": "application/json" });
-      response.end(JSON.stringify({ error: `Telegram error: ${telegramError}` }));
+      respondToForm(request, response, 502, "Telegram delivery failed", `Telegram error: ${telegramError}`);
       return;
     }
 
-    response.writeHead(200, { "Content-Type": "application/json" });
-    response.end(JSON.stringify({ sent: true }));
+    respondToForm(request, response, 200, "Request sent", "Your course request was delivered to Telegram. We’ll reply to you there.");
   } catch (error) {
     console.error("Unable to process Telegram inquiry:", error.message);
-    response.writeHead(500, { "Content-Type": "application/json" });
-    response.end(JSON.stringify({ error: "Unable to deliver the request. Check that the server is running and Telegram is configured." }));
+    respondToForm(request, response, 500, "Couldn’t send the request", "Please go back and try again. Check the server terminal for details.");
   }
 });
 

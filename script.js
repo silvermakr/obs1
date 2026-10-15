@@ -1,37 +1,43 @@
 const form = document.getElementById("grant-form");
+const responseFrame = document.getElementById("lead-response");
+const submitButton = form?.querySelector('button[type="submit"]');
+const success = form?.querySelector(".form__ok");
+const error = form?.querySelector(".form__error");
+let requestPending = false;
+let requestTimeout;
 
-form?.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  if (!form.reportValidity()) return;
-
-  const button = form.querySelector('button[type="submit"]');
-  const success = form.querySelector(".form__ok");
-  const error = form.querySelector(".form__error");
-  const originalLabel = button.textContent;
+form?.addEventListener("submit", () => {
   success.hidden = true;
   error.hidden = true;
-  button.disabled = true;
-  button.textContent = "Sending…";
-
-  try {
-    const response = await fetch("/api/lead", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(Object.fromEntries(new FormData(form))),
-    });
-    if (!response.ok) {
-      const result = await response.json().catch(() => ({}));
-      throw new Error(result.error || `Request failed (HTTP ${response.status})`);
-    }
-    form.reset();
-    success.hidden = false;
-  } catch (cause) {
-    error.textContent = cause.message === "Failed to fetch"
-      ? "Could not reach the course server. Make sure it is running, then refresh this page."
-      : cause.message || "We couldn’t send your request. Check your connection and try again.";
-    error.hidden = false;
-  } finally {
-    button.disabled = false;
-    button.textContent = originalLabel;
-  }
+  submitButton.disabled = true;
+  submitButton.textContent = "Sending…";
+  requestPending = true;
+  clearTimeout(requestTimeout);
+  requestTimeout = setTimeout(() => {
+    if (!requestPending) return;
+    requestPending = false;
+    showResult(false, "Could not reach the course server. Open the site at http://localhost:3000 and make sure the server is running.");
+  }, 15000);
 });
+
+window.addEventListener("message", (event) => {
+  if (!requestPending || event.source !== responseFrame.contentWindow || event.data?.type !== "lead-form-result") return;
+
+  requestPending = false;
+  clearTimeout(requestTimeout);
+  showResult(event.data.success, event.data.message);
+});
+
+function showResult(sent, message) {
+  submitButton.disabled = false;
+  submitButton.textContent = "Send request via Telegram";
+  if (sent) {
+    form.reset();
+    success.textContent = message || "Thanks! Your request was sent. We’ll reply to you on Telegram.";
+    success.hidden = false;
+    return;
+  }
+
+  error.textContent = message || "We couldn’t send your request. Please try again.";
+  error.hidden = false;
+}
