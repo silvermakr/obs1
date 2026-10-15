@@ -6,6 +6,14 @@ function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
 }
 
+function isValidName(value) {
+  return /^(?=.{2,100}$)[\p{L}]+(?:[ '\u2019-][\p{L}]+)*$/u.test(value);
+}
+
+function isValidTelegramUsername(value) {
+  return /^@[A-Za-z][A-Za-z0-9_]{4,31}$/.test(value);
+}
+
 function respond(response, status, title, message) {
   const safeTitle = escapeHtml(title);
   const safeMessage = escapeHtml(message);
@@ -40,8 +48,12 @@ module.exports = async function handler(request, response) {
   const name = cleanField(lead.name, 100);
   const contact = cleanField(lead.contact, 100);
   const goal = cleanField(lead.goal, 1000);
-  if (!name || !contact) {
-    respond(response, 400, "Check the form", "Name and Telegram contact are required.");
+  if (!isValidName(name)) {
+    respond(response, 400, "Check your name", "Enter a valid name using letters, spaces, apostrophes, or hyphens. Numbers are not allowed.");
+    return;
+  }
+  if (!isValidTelegramUsername(contact)) {
+    respond(response, 400, "Check your Telegram username", "Enter a username in the format @username (5–32 letters, numbers, or underscores).");
     return;
   }
 
