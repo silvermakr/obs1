@@ -88,9 +88,10 @@ const server = http.createServer(async (request, response) => {
     });
     const telegramResult = await telegramResponse.json();
     if (!telegramResponse.ok || !telegramResult.ok) {
-      console.error("Telegram API rejected the message:", telegramResult.description || telegramResponse.status);
+      const telegramError = telegramResult.description || `Telegram HTTP ${telegramResponse.status}`;
+      console.error("Telegram API rejected the message:", telegramError);
       response.writeHead(502, { "Content-Type": "application/json" });
-      response.end(JSON.stringify({ error: "Telegram could not deliver the message. Check the server configuration and chat ID." }));
+      response.end(JSON.stringify({ error: `Telegram error: ${telegramError}` }));
       return;
     }
 
